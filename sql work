@@ -113,3 +113,66 @@ VALUES
 
 	--deny
 	deny delete on dbo.employees to sawera;
+	--functions
+	--FLOOR
+	select FLOOR(4.4);
+
+	--scalar function without parameters
+	create function FullName()
+	returns varchar(255)
+	begin 
+
+	return 'sawera ansari'
+	end
+
+	select dbo.FullName();
+
+	--scalar function with parameters
+	create function addition(@num1 as int, @num2 as int)
+	returns int
+	begin
+	return (@num1 + @num2)
+	end
+	select dbo.addition(7,5) as addition;
+
+	--function with variable
+	create function students_name(@age as int)
+	returns varchar(255)
+	as
+	begin
+	declare @str varchar(100)
+	if(@age >= 15)
+	begin
+	set @str = 'you are eligible'
+	end
+	else
+	begin
+	set @str = 'sorry! you are not eligible'
+	end
+	return @str
+	end
+	select dbo.students_name(20)  
+	
+	--table valued function
+	create function emp()
+	returns table
+	as
+	return select * from Employees
+
+	select * from emp();
+
+	--with parameter
+	create function employee(@gender as varchar(20))
+	returns table
+	as
+	return select * from Employees where gender = @gender
+
+	select * from employee('M');
+
+	--alter
+	alter function employee()
+	returns table
+	as
+	return select distinct FirstName from Employees
+
+	select * from employee();
