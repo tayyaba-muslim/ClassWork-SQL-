@@ -176,3 +176,81 @@ VALUES
 	return select distinct FirstName from Employees
 
 	select * from employee();
+
+	--stored procedure
+	select * from Employees;
+
+	create procedure SPfirstprocedure
+	as
+	begin
+	select FirstName, LastName from Employees
+	end
+	go
+
+	exec SPfirstprocedure;
+
+	create procedure spFemaleprocedure
+	as
+	begin
+	select FirstName, LastName,gender from Employees where gender = 'F'
+	end
+	go
+	exec spFemaleprocedure;
+
+	--with join
+	create procedure spjoinprocedure
+	as
+	begin
+	select emp.FirstName, emp.LastName, Dept.DepartmentName from Employees as emp join Departments as Dept on Emp.DepartmentID = Dept.DepartmentID
+	where emp.DepartmentID=1;
+	end
+	go
+
+	exec spjoinprocedure;
+
+		--with join
+	create procedure spdeptprocedure
+	as
+	begin
+	select emp.FirstName, emp.LastName, Dept.DepartmentName from Employees as emp join Departments as Dept on Emp.DepartmentID = Dept.DepartmentID
+	where emp.DepartmentID=2;
+	end
+	go
+
+	exec spdeptprocedure;
+
+	--with join alter
+	alter procedure spjoinprocedure
+	as
+	begin
+	select emp.FirstName, emp.LastName, Dept.DepartmentName from Employees as emp join Departments as Dept on Emp.DepartmentID = Dept.DepartmentID;
+	end
+	go
+
+	exec spjoinprocedure;
+
+	--stored procedure with parameter
+	create procedure fn_procedure
+	@id int
+	as
+	begin
+	select * from Employees where EmployeeID = @id
+	
+	end
+	go
+	--1st method for execute (sp)
+	exec fn_procedure 1;
+	--2nd method for execute (sp)
+	exec fn_procedure @id = 2;
+	
+	select * from Employees;
+
+	create procedure spincretsalary
+	@id int,
+	@FirstName varchar(255)
+	as
+	begin
+	select FirstName , LastName, gender, ((salary/100)*5) + Salary as Salary from Employees Where EmployeeID = @id
+	end
+	go
+	exec spincretsalary @id= 2, @firstname = 'FirstName'
