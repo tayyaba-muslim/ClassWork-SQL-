@@ -113,6 +113,7 @@ VALUES
 
 	--deny
 	deny delete on dbo.employees to sawera;
+
 	--functions
 	--FLOOR
 	select FLOOR(4.4);
@@ -254,3 +255,300 @@ VALUES
 	end
 	go
 	exec spincretsalary @id= 2, @firstname = 'FirstName'
+
+
+
+	select * from Employees;
+	select * from Departments;
+
+	--Show Increment Salary by EmployeeID
+Create PROCEDURE IncrementSalary
+    @EmployeeID INT,
+	@IncrementAmount DECIMAL(10, 2)
+AS
+BEGIN
+    SELECT FirstName, LastName, Salary + @IncrementAmount
+    FROM Employees
+    WHERE EmployeeID = @EmployeeID;
+END;
+
+EXEC IncrementSalary @EmployeeID = 1, @IncrementAmount = 2000;
+
+--Update Increment Salary by EmployeeID
+CREATE PROCEDURE UpdateIncrementSalary
+    @EmployeeID INT,
+    @IncrementAmount DECIMAL(10, 2)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE Employees
+    SET Salary = Salary + @IncrementAmount
+    WHERE EmployeeID = @EmployeeID;
+
+    SELECT FirstName, LastName, Salary
+    FROM Employees
+    WHERE EmployeeID = @EmployeeID;
+END;
+
+EXEC UpdateIncrementSalary @EmployeeID = 1, @IncrementAmount = 1000;
+
+select * from Employees;
+
+--Show Increment Salary by EmployeeID or FirstName
+CREATE PROCEDURE ShowIncrementSalary
+    @Identifier NVARCHAR(100),
+    @IncrementAmount DECIMAL(10, 2)
+AS
+BEGIN
+        IF EXISTS (
+        SELECT 1
+        FROM Employees
+        WHERE EmployeeID = TRY_CAST(@Identifier AS INT)
+            OR FirstName = @Identifier
+    )
+    BEGIN
+        SELECT FirstName, LastName, Salary + @IncrementAmount
+        FROM Employees
+        WHERE EmployeeID = TRY_CAST(@Identifier AS INT)
+            OR FirstName = @Identifier;
+    END
+    ELSE
+    BEGIN
+        PRINT 'Employee not found.';
+    END
+END;
+
+EXEC ShowIncrementSalary @Identifier = '1', @IncrementAmount = 1000;
+
+EXEC ShowIncrementSalary @Identifier = 'sawera', @IncrementAmount = 500;
+
+--Update Increment Salary by EmployeeID or FirstName
+CREATE PROCEDURE UpdateIncrementSalary2
+    @Identifier NVARCHAR(100),
+    @IncrementAmount DECIMAL(10, 2)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF EXISTS (
+        SELECT 1
+        FROM Employees
+        WHERE EmployeeID = TRY_CAST(@Identifier AS INT)
+            OR FirstName = @Identifier
+    )
+    BEGIN
+        UPDATE Employees
+        SET Salary = Salary + @IncrementAmount
+        WHERE EmployeeID = TRY_CAST(@Identifier AS INT)
+            OR FirstName = @Identifier;
+
+        SELECT FirstName, LastName, Salary
+        FROM Employees
+        WHERE EmployeeID = TRY_CAST(@Identifier AS INT)
+            OR FirstName = @Identifier;
+    END
+    ELSE
+    BEGIN
+        PRINT 'Employee not found.';
+    END
+END;
+
+EXEC UpdateIncrementSalary2 @Identifier = '1', @IncrementAmount = 1000;
+
+EXEC UpdateIncrementSalary2 @Identifier = 'sawera', @IncrementAmount = 500;
+
+
+
+
+
+	--sub query
+	select * from Employees where EmployeeID in (select EmployeeID from Employees where gender = 'M')
+
+	select * from Employees where EmployeeID in (select EmployeeID from Employees where Salary > 70000)
+	--in
+	select * from Employees where DepartmentID in (select DepartmentID from Departments where DepartmentName = 'HR')
+
+	--not in
+
+	select * from Employees where EmployeeID not in (select EmployeeID from Employees where gender = 'M')
+
+	--any
+	select * from Employees where EmployeeID < ANY (select EmployeeID from Employees where Salary > 80000)
+
+	--all
+	select * from Employees where EmployeeID > ALL (select EmployeeID from Employees where Salary < 72000)
+
+	--HR employee table
+	create table HR_Emp(
+	EmployeeID INT,
+	FirstName varchar(255),
+	LastName varchar(255),
+	gender varchar(40)
+	);
+
+	insert into HR_Emp(EmployeeID,FirstName,LastName,gender)
+	select EmployeeID,FirstName,LastName,gender from Employees where DepartmentID in (select DepartmentID from Departments where DepartmentName = 'HR')
+
+	select * from HR_Emp;
+
+
+	--Marketing Department employee table
+	create table Marketing_Department(
+	EmployeeID INT,
+	FirstName varchar(255),
+	LastName varchar(255),
+	gender varchar(40)
+	);
+
+	insert into Marketing_Department(EmployeeID,FirstName,LastName,gender)
+	select EmployeeID,FirstName,LastName,gender from Employees where DepartmentID in
+	(select DepartmentID from Departments where DepartmentName = 'Marketing Department')
+
+	select * from Marketing_Department;
+
+	--Administration employee table
+	create table Administration(
+	EmployeeID INT,
+	FirstName varchar(255),
+	LastName varchar(255),
+	gender varchar(40)
+	);
+
+	insert into Administration(EmployeeID,FirstName,LastName,gender)
+	select EmployeeID,FirstName,LastName,gender from Employees where DepartmentID in
+	(select DepartmentID from Departments where DepartmentName = 'Administration')
+
+	select * from Administration;
+
+	--triggers--
+
+	create trigger insert_emp on employees
+	for insert
+	as 
+	begin
+	print 'someone trying to access your table'
+	end
+	 
+	 alter trigger tr_insert_emp on employees
+	 after delete
+	 as
+	 begin
+	 select * from deleted
+	 end
+
+	  create trigger update_emp on employees
+	 after update
+	 as
+	 begin
+	select * from inserted
+	select * from deleted
+	 end
+
+
+	 --inserting value in employees
+
+	 INSERT INTO Employees (FirstName, LastName, DepartmentID,gender, Salary)
+VALUES
+    ('ayesha', 'khan', 2,'F', 33000.00),
+    ('rameen', 'abid', 2,'F', 98000.00),
+    ('wajiha', 'nadeem', 4,'F', 45000.00),
+    ('zainab', 'Ali', 3,'F', 60000.00),
+    ('Mohtasham', 'Ahmed', 2,'M', 40000.00),
+    ('Amira', 'Raza', 5, 'M',65000.00),
+    ('Minali', 'Khan', 3,'F', 85000.00),
+    ('Sunni', 'deol', 5,'M', 43000.00),
+    ('Ruhi', 'Imran', 1,'F', 57000.00),
+    ('shanib', 'Ikram', 4,'F', 77000.00);
+
+		 DELETE from Employees where EmployeeID= 40
+
+
+	INSERT INTO Employees (FirstName, LastName, DepartmentID,gender, Salary)
+VALUES
+ 
+	  ('Ruhi', 'Imrani', 2,'F', 70000.00)
+
+	select * from Employees;
+	update Employees set FirstName = 'shibi' where EmployeeID = 6 
+	select * from Employees;
+	-- creating audit table--
+
+create table insert_trigger_details(
+id int primary key identity,
+auditInfo varchar(60)
+)
+create trigger tr_insert_audit on Employees
+after insert
+as
+begin
+declare @id int, @name varchar(50)
+select @id= EmployeeID,@name = FirstName from inserted
+insert into insert_trigger_details values ('user with id ' + cast(@id as varchar(50)) + 'with name ' + @name + 'is inserted in the table')
+end
+select * from insert_trigger_details;
+
+ 
+-- creatin audit table for deleted--
+create trigger tr_deleted_audit on employees
+after delete
+as
+begin
+declare @id int, @name varchar(50)
+select @id= EmployeeID,@name = FirstName from deleted
+insert into insert_trigger_details values ('user with id ' + cast(@id as varchar(50)) + 'with name ' + @name + 'is deleted in the table')
+end
+ DELETE FROM insert_trigger_details where id =1
+ select * from insert_trigger_details;
+
+ --instead of triggers
+
+ create trigger tr_instead on Employees
+ instead of insert
+ as
+ begin
+ print 'someone try to insert value'
+ end
+
+ --insert instead table
+ create table tr_instead_table(
+id int primary key identity,
+auditInfo varchar(60)
+)
+create trigger tr_inst_table on Employees
+instead of insert
+as
+begin
+declare @id int, @name varchar(50)
+select @id= EmployeeID,@name = FirstName from inserted
+insert into tr_instead_table values ('user with id ' + cast(@id as varchar(50)) + 'with name ' + @name + ' is inserted in the table')
+end
+
+	INSERT INTO Employees (FirstName, LastName, DepartmentID,gender, Salary)
+VALUES
+ 
+	  ('Sawera', 'Ansari', 2,'F', 70000.00);
+
+select * from tr_instead_table;
+
+
+select * from Employees;
+	
+--delete 	
+create trigger tr_dl_table on Employees
+instead of delete
+as
+begin
+declare @id int, @name varchar(50)
+select @id= EmployeeID,@name = FirstName from deleted
+insert into tr_instead_table values ('user with id ' + cast(@id as varchar(50)) + 'with name ' + @name + ' is inserted in the table')
+end
+
+Delete from Employees where EmployeeID =1;
+
+sp_helptext tr_dl_table 
+
+
+
+	
+
