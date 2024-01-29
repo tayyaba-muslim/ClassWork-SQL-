@@ -549,6 +549,75 @@ Delete from Employees where EmployeeID =1;
 sp_helptext tr_dl_table 
 
 
+--DDL triggers on database
+--For Create
+
+create trigger tr_create on database
+for create_table
+as
+begin
+print 'you cannaot create the table'
+end
+
+create table NEW (id int)
+
+--For Alter
+
+create trigger tr_alter on database
+for alter_table
+as
+begin
+print 'you cannaot alter the table'
+end
+
+alter table departments add  DepartmentName varchar (255)
+
+--For Drop
+
+create trigger tr_drop on database
+for drop_table
+as
+begin
+print 'you cannaot drop the table'
+end	
+
+drop table Departments
+
+-- DDL triggers on server
+--For create
+
+create trigger tr_createserver on all server
+for create_database
+as
+begin
+print 'you cannaot create the table'
+end
+
+create database saw
+
+--For Alter
+
+create trigger tr_alterserver on all server
+for alter_database
+as
+begin
+print 'you cannaot alter the table'
+end
+
+alter table departments add  DepartmentName varchar (255)
+
+--For DROP
+
+create trigger tr_dropserver on all server
+for drop_database
+as
+begin
+print 'you cannaot drop the table'
+end	
+
+drop table Departments
+
+
 
 	
 
